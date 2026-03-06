@@ -1,4 +1,4 @@
-# text_encrypter
+# text_encrypter [在线访问](https://zsxllch.github.io/text_encrypter/)
 
 双重加密文本工具：AES-256-GCM → ChaCha20-Poly1305
 
