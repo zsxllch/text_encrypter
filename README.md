@@ -1,6 +1,6 @@
 ## [在线访问](https://zsxllch.github.io/text_encrypter/)
 
-双重加密文本工具：AES-256-GCM → ChaCha20-Poly1305
+文本加密工具：AES-256-CBC
 
 ## 使用方式
 
@@ -11,14 +11,19 @@
 
 ## 加密/解密流程
 
-- 加密：原文 → AES-256-GCM(K, IV1=随机12B) → 中间密文 → ChaCha20-Poly1305(K, nonce=随机12B) → 最终密文
-- 解密：最终密文 → ChaCha20-Poly1305(K, nonce) → 中间密文 → AES-256-GCM(K, IV1) → 原文
+- 加密：原文 → 智能压缩(GZIP/直通 + 1字节标志) → AES-256-CBC(K, IV=Fixed) → Base64
+- 解密：Base64 → AES-256-CBC(K, IV=Fixed) → 检查标志位 → (GZIP解压/直通) → 原文
 
 ## 密钥与输出格式
 
-- 口令派生：`key = SHA-256(UTF8(passphrase))`，得到 32 字节作为 AES-256 与 ChaCha20 的共享密钥
-- 输出为 Base64，内部按字节拼接：
-  - `iv(12) | nonce(12) | chachaCipher | aesTag(16) | chachaTag(16)`
-  - 其中 `aesTag` 是 AES-GCM 的认证标签，`chachaTag` 是 ChaCha20-Poly1305 的认证标签
+- 口令派生：`key = SHA-256(UTF8(passphrase))`，得到 32 字节 AES 密钥
+- **固定 IV**：`IV = SHA-256(key)[0..16]` (取前16字节)。
+  - 注意：使用固定 IV 会导致加密具有确定性（相同原文+相同口令=相同密文）。
+- 输出为 Base64，内部为纯密文（IV 不包含在输出中）：
+  - `cipherText`
+  - 密文对应明文结构：`flag(1) | payload`
+    - `flag=1`: GZIP压缩
+    - `flag=0`: 无压缩
+  - 使用 PKCS7 填充
 
 注意：要解密，需使用相同口令；密文需是上述格式的 Base64 字符串。
