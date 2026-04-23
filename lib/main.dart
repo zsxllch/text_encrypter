@@ -151,7 +151,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   Future<void> _onActionPressed() async {
     final input = _inputController.text;
-    final passphrase = _keyController.text.isEmpty ? 'default-passphrase' : _keyController.text;
+    final default_passphrase='BgtU3w61fP73r8?h1mt#cKj%eOp5b@Z4fd&kA9sj7ix!8ZuXoU6nz&2N#yExH@0V';
+    final passphrase = _keyController.text.isEmpty ? default_passphrase : _keyController.text;
 
     if (input.isEmpty) {
       _showTopNotice('请输入文本', isError: true);
